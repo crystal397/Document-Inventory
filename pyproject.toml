@@ -1,0 +1,73 @@
+# pyproject.toml — Python 프로젝트의 "설명서" 파일 (PEP 518 / PEP 621 표준).
+# 예전에는 setup.py, requirements.txt, setup.cfg, pytest.ini 등으로 흩어져 있던 설정을
+# 이 파일 하나에 모은다.
+
+[build-system]
+# 이 프로젝트를 "설치 가능한 패키지"로 만드는 도구. setuptools가 가장 널리 쓰인다.
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "document-inventory"
+version = "0.1.0"
+description = "대규모 건설감정 자료를 위한 문서 인벤토리 (메타데이터 스캐너)"
+readme = "README.md"
+requires-python = ">=3.12"
+# 실행에 꼭 필요한 외부 라이브러리 (최소화 원칙)
+dependencies = [
+    "tqdm>=4.66",  # 진행률 표시
+]
+
+[project.optional-dependencies]
+# pip install -e ".[xlsx]"  → xlsx 출력 기능 (선택)
+xlsx = ["openpyxl>=3.1"]
+# pip install -e ".[dev]"   → 개발용 도구
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.6",
+]
+
+[tool.setuptools.packages.find]
+# src/ 레이아웃: 패키지가 src/ 아래에 있음을 알려준다.
+where = ["src"]
+
+# ─────────────────────────────────────────────
+# pytest 설정
+# ─────────────────────────────────────────────
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# -ra: 실패/건너뜀 이유 요약 출력, --strict-markers: 등록 안 된 마커 사용 시 오류(오타 방지)
+addopts = "-ra --strict-markers"
+markers = [
+    "slow: 대용량 성능 테스트 (pytest -m slow 로 실행)",
+]
+
+# ─────────────────────────────────────────────
+# coverage 설정
+# ─────────────────────────────────────────────
+[tool.coverage.run]
+source = ["doc_inventory"]
+branch = true  # if/else 양쪽 분기를 모두 실행했는지까지 측정
+
+# ─────────────────────────────────────────────
+# ruff 설정 (린트 + 포맷)
+# ─────────────────────────────────────────────
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E", "W",  # pycodestyle: 기본 스타일
+    "F",       # pyflakes: 사용 안 한 import, 정의 안 된 변수 등 실제 버그
+    "I",       # isort: import 정렬
+    "B",       # flake8-bugbear: 흔한 실수 패턴
+    "UP",      # pyupgrade: 최신 Python 문법 권장
+    "PTH",     # flake8-use-pathlib: os.path 대신 pathlib 사용 권장
+    "PLW1514", # open()/read_text() 등에 encoding= 누락 금지 (한글 처리 — README 9장)
+]
+# PLW1514는 아직 preview(시험) 규칙이다. preview 전체를 켜지 않고
+# select에 '명시적으로 적은' preview 규칙만 활성화한다.
+preview = true
+explicit-preview-rules = true
