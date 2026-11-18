@@ -37,6 +37,8 @@ where = ["src"]
 # ─────────────────────────────────────────────
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# tools/ 폴더를 import 경로에 추가 → 테스트에서 `import make_fake_dataset` 가능
+pythonpath = ["tools"]
 # -ra: 실패/건너뜀 이유 요약 출력, --strict-markers: 등록 안 된 마커 사용 시 오류(오타 방지)
 addopts = "-ra --strict-markers"
 markers = [
