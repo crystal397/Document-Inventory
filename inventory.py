@@ -11,9 +11,9 @@ def list_files(folder_path):
         print(f"오류: 폴더를 찾을 수 없습니다: {folder_path}")
         return 1
 
-    for windows_path, _, file_names in folder_path.walk():
+    for dir_path, _, file_names in folder_path.walk():
         for file_name in file_names:
-            file_path = windows_path / file_name
+            file_path = dir_path / file_name
             info = file_path.stat()
             print(
                 file_path.relative_to(folder_path).as_posix(),
