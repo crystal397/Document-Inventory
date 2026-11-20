@@ -11,17 +11,17 @@ def list_files(folder_path):
         print(f"오류: 폴더를 찾을 수 없습니다: {folder_path}")
         return 1
 
-    for item in folder_path.rglob("*"):
-        if item.is_file():
-            info = item.stat()
-
+    for windows_path, _, file_names in folder_path.walk():
+        for file_name in file_names:
+            file_path = windows_path / file_name
+            info = file_path.stat()
             print(
-                item.relative_to(folder_path).as_posix(), 
+                file_path.relative_to(folder_path).as_posix(),
                 info.st_size, 
                 datetime.fromtimestamp(info.st_mtime).strftime("%Y-%m-%d %H:%M:%S"),
                 sep="\t"
             )
-
+            
             count_items += 1
             count_size += info.st_size
 
