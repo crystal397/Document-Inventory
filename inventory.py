@@ -19,22 +19,21 @@ def scan_files(folder_path):
 
     return file_lists
 
-def print_report(folder_path):
+def print_report(records):
 
-    file_lists = scan_files(folder_path)
     count_items = 0
     count_size = 0
 
-    for relative_path, size, modified_date in file_lists:
-            print(
-                relative_path,
-                size, 
-                modified_date.strftime("%Y-%m-%d %H:%M:%S"),
-                sep="\t"
-            )
-            
-            count_items += 1
-            count_size += size
+    for relative_path, size, modified_date in records:
+        print(
+            relative_path,
+            size, 
+            modified_date.strftime("%Y-%m-%d %H:%M:%S"),
+            sep="\t"
+        )
+        
+        count_items += 1
+        count_size += size
 
     print(f"합계: 파일 {count_items}개, {count_size} 바이트")
 
@@ -42,7 +41,15 @@ def print_report(folder_path):
 
 if __name__ == "__main__":
     if len(sys.argv) == 2:
-        sys.exit(print_report(Path(sys.argv[1])))
+        
+        folder_path = Path(sys.argv[1])
+
+        if not folder_path.is_dir():
+            print(f"오류: 폴더를 찾을 수 없습니다: {folder_path}")
+            sys.exit(1)
+        else:
+            records = scan_files(Path(sys.argv[1]))
+            sys.exit(print_report(records))
     else:
         print("사용법: python inventory.py <폴더경로>")
         sys.exit(2)
