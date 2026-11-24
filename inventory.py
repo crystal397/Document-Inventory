@@ -12,7 +12,7 @@ def scan_files(folder_path):
             info = file_path.stat()
             file_lists.append(
                 (file_path.relative_to(folder_path).as_posix(),
-                info.st_size, 
+                info.st_size,
                 datetime.fromtimestamp(info.st_mtime)
                 )
             )
@@ -27,11 +27,11 @@ def print_report(records):
     for relative_path, size, modified_date in records:
         print(
             relative_path,
-            size, 
+            size,
             modified_date.strftime("%Y-%m-%d %H:%M:%S"),
             sep="\t"
         )
-        
+
         count_items += 1
         count_size += size
 
@@ -41,14 +41,14 @@ def print_report(records):
 
 if __name__ == "__main__":
     if len(sys.argv) == 2:
-        
+
         folder_path = Path(sys.argv[1])
 
         if not folder_path.is_dir():
             print(f"오류: 폴더를 찾을 수 없습니다: {folder_path}")
             sys.exit(1)
         else:
-            records = scan_files(Path(sys.argv[1]))
+            records = scan_files(folder_path)
             sys.exit(print_report(records))
     else:
         print("사용법: python inventory.py <폴더경로>")
