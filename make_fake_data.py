@@ -1,13 +1,27 @@
 from pathlib import Path
 import sys
+import random
+
+KINDS = [
+    ("01_계약서", "계약서", ".pdf"),
+    ("02_도면/상세도", "도면", ".dwg"),
+    ("03_현장사진", "현장사진", ".jpg"),
+    ("04_작업일지", "작업일지", ".xlsx"),
+    ("05_공문", "공문", ".hwpx")
+]
 
 def make_files(folder_path, count):
     fake_folder = folder_path
     fake_folder.mkdir()
 
+    rng = random.Random(42)
+
     for i in range(1, count+1):
-        new_file = fake_folder / f"문서_{i:05d}.txt"
-        new_file.write_text(f"{i:05d}")
+        folder_name, file_name, file_extension = rng.choice(KINDS)
+        new_folder = fake_folder / folder_name
+        new_folder.mkdir(parents=True, exist_ok=True)
+        new_file = new_folder / f"{file_name}_{i:05d}{file_extension}"
+        new_file.write_bytes(b"0" * rng.randint(0,2000))
 
 
 if __name__ == "__main__":
