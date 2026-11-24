@@ -1,6 +1,7 @@
 from pathlib import Path
 import sys
 from datetime import datetime
+import csv
 
 def scan_files(folder_path):
 
@@ -37,10 +38,21 @@ def print_report(records):
 
     print(f"합계: 파일 {count_items}개, {count_size} 바이트")
 
-    return 0
+
+def save_csv(records, csv_path):
+    with open(csv_path, "x", encoding="utf-8-sig", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["상대경로", "크기", "수정일"])
+        for relative_path, size, modified_date in records:
+            writer.writerow([
+                    relative_path,
+                    size,
+                    modified_date.strftime("%Y-%m-%d %H:%M:%S")
+            ])
+
 
 if __name__ == "__main__":
-    if len(sys.argv) == 2:
+    if len(sys.argv) == 2 or len(sys.argv) == 3:
 
         folder_path = Path(sys.argv[1])
 
@@ -49,7 +61,18 @@ if __name__ == "__main__":
             sys.exit(1)
         else:
             records = scan_files(folder_path)
-            sys.exit(print_report(records))
+            print_report(records)
+
+            if len(sys.argv) == 3:
+                csv_name = sys.argv[2]
+                try:
+                    save_csv(records, csv_name)
+                    print(f"csv 파일이 생성되었습니다: {csv_name}")
+                except FileExistsError:
+                    print(f"오류: 파일이 이미 있습니다: {csv_name}")
+                    sys.exit(1)
+
+            sys.exit(0)
     else:
-        print("사용법: python inventory.py <폴더경로>")
+        print("사용법: python inventory.py <폴더경로> [저장할 CSV]")
         sys.exit(2)
