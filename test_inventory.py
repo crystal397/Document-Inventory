@@ -1,6 +1,7 @@
-from inventory import scan_files
+from inventory import scan_files, save_csv
 import os
 from datetime import datetime
+import pytest
 
 def test_empty_folder_returns_empty_list(tmp_path):
     records = scan_files(tmp_path)
@@ -73,3 +74,34 @@ def test_modified_date_is_recorded(tmp_path):
     records = scan_files(tmp_path)
 
     assert records[0][2] == expected_date
+
+
+def test_save_csv_writes_header_and_rows(tmp_path):
+    records = [("도면/계약서.pdf", 7, datetime(2026, 1, 2, 3, 4, 5))]
+    csv_path = tmp_path / "result.csv"
+
+    save_csv(records, csv_path)
+
+    text = csv_path.read_text(encoding="utf-8-sig")
+    lines = text.splitlines()
+
+    assert lines == ["상대경로,크기,수정일", "도면/계약서.pdf,7,2026-01-02 03:04:05"]
+
+
+def test_save_csv_starts_with_bom(tmp_path):
+    csv_path = tmp_path / "result.csv"
+    save_csv([], csv_path)
+
+    data = csv_path.read_bytes()                # 글자로 바꾸지 않고 바이트 그대로 읽기
+
+    assert data.startswith(b"\xef\xbb\xbf")       # 이것으로 시작하면 True
+
+
+def test_save_csv_does_not_overwrite_existing_file(tmp_path):
+    csv_path = tmp_path / "result.csv"
+    csv_path.write_text("original")
+
+    with pytest.raises(FileExistsError):
+        save_csv([], csv_path)
+
+    assert csv_path.read_text() == "original"
