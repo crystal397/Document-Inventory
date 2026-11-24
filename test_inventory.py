@@ -1,4 +1,6 @@
 from inventory import scan_files
+import os
+from datetime import datetime
 
 def test_empty_folder_returns_empty_list(tmp_path):
     records = scan_files(tmp_path)
@@ -58,3 +60,16 @@ def test_empty_subfolder_is_not_recorded(tmp_path):
     records = scan_files(tmp_path)
 
     assert records == []
+
+
+def test_modified_date_is_recorded(tmp_path):
+    new_file = tmp_path / "grapefruit.txt"
+    new_file.write_text("grapefruit")
+    access_time = os.stat(new_file).st_atime
+
+    expected_date = datetime(2026, 1, 2, 3, 4, 5)
+    os.utime(new_file, (access_time, expected_date.timestamp()))
+
+    records = scan_files(tmp_path)
+
+    assert records[0][2] == expected_date
