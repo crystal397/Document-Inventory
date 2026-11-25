@@ -1,4 +1,4 @@
-from inventory import scan_files, save_csv
+from inventory import scan_files, save_csv, is_inside
 import os
 from datetime import datetime
 import pytest
@@ -105,3 +105,17 @@ def test_save_csv_does_not_overwrite_existing_file(tmp_path):
         save_csv([], csv_path)
 
     assert csv_path.read_text() == "original"
+
+
+def test_csv_in_scanned_folder_is_inside(tmp_path):
+    folder_path = tmp_path / "sample"
+    csv_path = folder_path / "result.csv"
+    
+    assert is_inside(folder_path, csv_path) == True
+    
+
+def test_csv_going_up_is_not_inside(tmp_path):
+    folder_path = tmp_path / "sample"
+    csv_path = folder_path / ".." / "result.csv"
+
+    assert is_inside(folder_path, csv_path) == False

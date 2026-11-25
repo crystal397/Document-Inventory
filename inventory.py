@@ -51,6 +51,12 @@ def save_csv(records, csv_path):
             ])
 
 
+def is_inside(folder_path, csv_path):
+    full_addr_folder_path = Path(folder_path).resolve()
+    full_addr_csv_path = Path(csv_path).resolve()
+    return full_addr_csv_path.is_relative_to(full_addr_folder_path)
+
+
 if __name__ == "__main__":
     if len(sys.argv) == 2 or len(sys.argv) == 3:
 
@@ -58,6 +64,10 @@ if __name__ == "__main__":
 
         if not folder_path.is_dir():
             print(f"오류: 폴더를 찾을 수 없습니다: {folder_path}")
+            sys.exit(1)
+        elif len(sys.argv) == 3 and is_inside(folder_path, sys.argv[2]):
+            csv_name = sys.argv[2]
+            print(f"오류: 스캔하는 폴더 안에는 저장할 수 없습니다: {csv_name}")
             sys.exit(1)
         else:
             records = scan_files(folder_path)
