@@ -11,12 +11,11 @@ def scan_files(folder_path):
         for file_name in file_names:
             file_path = dir_path / file_name
             info = file_path.stat()
-            file_lists.append(
-                (file_path.relative_to(folder_path).as_posix(),
+            file_lists.append((
+                file_path.relative_to(folder_path).as_posix(),
                 info.st_size,
                 datetime.fromtimestamp(info.st_mtime)
-                )
-            )
+            ))
 
     return file_lists
 
@@ -52,37 +51,34 @@ def save_csv(records, csv_path):
 
 
 def is_inside(folder_path, csv_path):
-    full_addr_folder_path = Path(folder_path).resolve()
-    full_addr_csv_path = Path(csv_path).resolve()
-    return full_addr_csv_path.is_relative_to(full_addr_folder_path)
+    folder = Path(folder_path).resolve()
+    csv_file = Path(csv_path).resolve()
+
+    return csv_file.is_relative_to(folder)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 2 or len(sys.argv) == 3:
-
-        folder_path = Path(sys.argv[1])
-
-        if not folder_path.is_dir():
-            print(f"오류: 폴더를 찾을 수 없습니다: {folder_path}")
-            sys.exit(1)
-        elif len(sys.argv) == 3 and is_inside(folder_path, sys.argv[2]):
-            csv_name = sys.argv[2]
-            print(f"오류: 스캔하는 폴더 안에는 저장할 수 없습니다: {csv_name}")
-            sys.exit(1)
-        else:
-            records = scan_files(folder_path)
-            print_report(records)
-
-            if len(sys.argv) == 3:
-                csv_name = sys.argv[2]
-                try:
-                    save_csv(records, csv_name)
-                    print(f"csv 파일이 생성되었습니다: {csv_name}")
-                except FileExistsError:
-                    print(f"오류: 파일이 이미 있습니다: {csv_name}")
-                    sys.exit(1)
-
-            sys.exit(0)
-    else:
+    if len(sys.argv) not in (2, 3):
         print("사용법: python inventory.py <폴더경로> [저장할 CSV]")
         sys.exit(2)
+
+    folder_path = Path(sys.argv[1])
+    csv_path = sys.argv[2] if len(sys.argv) > 2 else None
+
+    if not folder_path.is_dir():
+        print(f"오류: 폴더를 찾을 수 없습니다: {folder_path}")
+        sys.exit(1)
+    elif csv_path is not None and is_inside(folder_path, csv_path):   
+        print(f"오류: 스캔하는 폴더 안에는 저장할 수 없습니다: {csv_path}")
+        sys.exit(1)
+    else:
+        records = scan_files(folder_path)
+        print_report(records)
+
+        if csv_path is not None:
+            try:
+                save_csv(records, csv_path)
+                print(f"csv 파일이 생성되었습니다: {csv_path}")
+            except FileExistsError:
+                print(f"오류: 파일이 이미 있습니다: {csv_path}")
+                sys.exit(1)
