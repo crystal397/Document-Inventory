@@ -2,4 +2,4 @@
 sample/
 __pycache__/
 *.csv
-fake_data/
+fake_data*/
