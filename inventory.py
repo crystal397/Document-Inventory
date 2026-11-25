@@ -11,12 +11,16 @@ def scan_files(folder_path):
     for dir_path, _, file_names in folder_path.walk():
         for file_name in file_names:
             file_path = dir_path / file_name
-            info = file_path.stat()
-            file_lists.append((
-                file_path.relative_to(folder_path).as_posix(),
-                info.st_size,
-                datetime.fromtimestamp(info.st_mtime)
-            ))
+            relative_path = file_path.relative_to(folder_path).as_posix()
+            try:
+                info = file_path.stat()
+                file_lists.append((
+                    relative_path,
+                    info.st_size,
+                    datetime.fromtimestamp(info.st_mtime)
+                ))
+            except OSError as e:
+                errors.append((relative_path, str(e)))
 
     return file_lists, errors
 
