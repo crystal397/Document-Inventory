@@ -6,6 +6,7 @@ import csv
 def scan_files(folder_path):
 
     file_lists = []
+    errors = []
 
     for dir_path, _, file_names in folder_path.walk():
         for file_name in file_names:
@@ -17,7 +18,7 @@ def scan_files(folder_path):
                 datetime.fromtimestamp(info.st_mtime)
             ))
 
-    return file_lists
+    return file_lists, errors
 
 def print_report(records):
 
@@ -72,7 +73,7 @@ if __name__ == "__main__":
         print(f"오류: 스캔하는 폴더 안에는 저장할 수 없습니다: {csv_path}")
         sys.exit(1)
     else:
-        records = scan_files(folder_path)
+        records, _ = scan_files(folder_path)
         print_report(records)
 
         if csv_path is not None:

@@ -11,7 +11,9 @@ def count_time(func, *args):
 
 folder_path = Path(sys.argv[1])
 
-records, scan_seconds = count_time(scan_files, folder_path)
+records_and_errors, scan_seconds = count_time(scan_files, folder_path)
+records, errors = records_and_errors
+print(records)
 _, print_seconds = count_time(print_report, records)
 _, save_seconds = count_time(save_csv, records, "speed_test.csv")
 

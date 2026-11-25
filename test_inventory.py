@@ -4,7 +4,7 @@ from datetime import datetime
 import pytest
 
 def test_empty_folder_returns_empty_list(tmp_path):
-    records = scan_files(tmp_path)
+    records, _ = scan_files(tmp_path)
     assert records == []
 
 
@@ -15,7 +15,7 @@ def test_two_files_have_correct_sizes(tmp_path):
     new_file2 = tmp_path / "pale.txt"
     new_file2.write_text("full")
 
-    records = scan_files(tmp_path)
+    records, _ = scan_files(tmp_path)
 
     relative_path_size = {}
     for relative_path, size, _ in records:
@@ -45,7 +45,7 @@ def test_file_in_subfolder_uses_slash(tmp_path):
     new_file3 = new_folder3 / "grapefruit.txt"
     new_file3.write_text("good")
 
-    records = scan_files(tmp_path)
+    records, _ = scan_files(tmp_path)
 
     actual_relative_paths = set()
     for relative_path, _, _ in records:
@@ -58,7 +58,7 @@ def test_empty_subfolder_is_not_recorded(tmp_path):
     new_folder = tmp_path / "grapefruit"
     new_folder.mkdir()
 
-    records = scan_files(tmp_path)
+    records, _ = scan_files(tmp_path)
 
     assert records == []
 
@@ -71,7 +71,7 @@ def test_modified_date_is_recorded(tmp_path):
     expected_date = datetime(2026, 1, 2, 3, 4, 5)
     os.utime(new_file, (access_time, expected_date.timestamp()))
 
-    records = scan_files(tmp_path)
+    records, _ = scan_files(tmp_path)
 
     assert records[0][2] == expected_date
 
