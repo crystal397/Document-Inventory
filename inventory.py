@@ -82,3 +82,6 @@ if __name__ == "__main__":
             except FileExistsError:
                 print(f"오류: 파일이 이미 있습니다: {csv_path}")
                 sys.exit(1)
+            except FileNotFoundError:
+                print(f"오류: 저장할 폴더가 없습니다: {csv_path}")
+                sys.exit(1)
