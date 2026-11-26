@@ -2,6 +2,7 @@ from inventory import scan_files, save_csv, is_inside
 import os
 from datetime import datetime
 import pytest
+from pathlib import Path
 
 def test_empty_folder_returns_empty_list(tmp_path):
     records, _ = scan_files(tmp_path)
@@ -119,3 +120,21 @@ def test_csv_going_up_is_not_inside(tmp_path):
     csv_path = folder_path / ".." / "result.csv"
 
     assert is_inside(folder_path, csv_path) == False
+
+
+def test_unreadable_files_are_skipped(tmp_path, monkeypatch):
+    new_file1 = tmp_path / "apple.txt"
+    new_file2 = tmp_path / "banana.txt"
+
+    new_file1.touch()
+    new_file2.touch()
+
+    def fake_stat(self):
+        raise PermissionError("권한 없음")
+
+    monkeypatch.setattr(Path, "stat", fake_stat)
+
+    file_lists, errors = scan_files(tmp_path)
+
+    assert len(file_lists) == 0
+    assert len(errors) == 2
