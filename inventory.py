@@ -24,7 +24,7 @@ def scan_files(folder_path):
 
     return file_lists, errors
 
-def print_report(records):
+def print_report(records, errors):
 
     count_items = 0
     count_size = 0
@@ -41,6 +41,16 @@ def print_report(records):
         count_size += size
 
     print(f"합계: 파일 {count_items}개, {count_size} 바이트")
+    if errors:
+        print(f"읽지 못한 파일: {len(errors)}개")
+
+        for relative_path, message in errors:
+            print(
+                relative_path,
+                message,
+                sep="\t"
+            )
+
 
 
 def save_csv(records, csv_path):
@@ -77,8 +87,8 @@ if __name__ == "__main__":
         print(f"오류: 스캔하는 폴더 안에는 저장할 수 없습니다: {csv_path}")
         sys.exit(1)
     else:
-        records, _ = scan_files(folder_path)
-        print_report(records)
+        records, errors = scan_files(folder_path)
+        print_report(records, errors)
 
         if csv_path is not None:
             try:
