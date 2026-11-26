@@ -1,4 +1,4 @@
-from inventory import scan_files, save_csv, is_inside
+from inventory import scan_files, save_csv, is_inside, print_report
 import os
 from datetime import datetime
 import pytest
@@ -138,3 +138,23 @@ def test_unreadable_files_are_skipped(tmp_path, monkeypatch):
 
     assert len(file_lists) == 0
     assert len(errors) == 2
+
+
+def test_print_report_shows_errors(capsys):
+    records = [("도면/계약서.pdf", 7, datetime(2026, 1, 2, 3, 4, 5))]
+    errors = [("도면/설계서.pdf", "권한 없음")]
+
+    print_report(records, errors)
+
+    out = capsys.readouterr().out
+    assert out.splitlines() == ["도면/계약서.pdf\t7\t2026-01-02 03:04:05", "합계: 파일 1개, 7 바이트", "읽지 못한 파일: 1개", "도면/설계서.pdf\t권한 없음"]
+
+
+def test_print_report_hides_errors_when_none(capsys):
+    records = [("도면/계약서.pdf", 7, datetime(2026, 1, 2, 3, 4, 5))]
+    errors = []
+
+    print_report(records, errors)
+
+    out = capsys.readouterr().out
+    assert out.splitlines() == ["도면/계약서.pdf\t7\t2026-01-02 03:04:05", "합계: 파일 1개, 7 바이트"]
