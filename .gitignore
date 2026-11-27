@@ -3,3 +3,4 @@ sample/
 __pycache__/
 *.csv
 fake_data*/
+practice/
