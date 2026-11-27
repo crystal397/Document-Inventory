@@ -57,15 +57,23 @@ def print_report(records, errors):
             )
 
 
-def save_csv(records, csv_path):
+def save_csv(records, errors, csv_path):
     with open(csv_path, "x", encoding="utf-8-sig", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["상대경로", "크기", "수정일"])
+        writer.writerow(["상대경로", "크기", "수정일", "오류"])
         for relative_path, size, modified_date in records:
             writer.writerow([
                     relative_path,
                     size,
-                    modified_date.strftime("%Y-%m-%d %H:%M:%S")
+                    modified_date.strftime("%Y-%m-%d %H:%M:%S"),
+                    ""
+            ])
+        for relative_path, message in errors:
+            writer.writerow([
+                    relative_path,
+                    "",
+                    "",
+                    message
             ])
 
 
@@ -96,7 +104,7 @@ if __name__ == "__main__":
 
         if csv_path is not None:
             try:
-                save_csv(records, csv_path)
+                save_csv(records, errors, csv_path)
                 print(f"csv 파일이 생성되었습니다: {csv_path}")
             except FileExistsError:
                 print(f"오류: 파일이 이미 있습니다: {csv_path}")

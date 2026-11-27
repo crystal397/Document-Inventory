@@ -81,17 +81,17 @@ def test_save_csv_writes_header_and_rows(tmp_path):
     records = [("도면/계약서.pdf", 7, datetime(2026, 1, 2, 3, 4, 5))]
     csv_path = tmp_path / "result.csv"
 
-    save_csv(records, csv_path)
+    save_csv(records, [], csv_path)
 
     text = csv_path.read_text(encoding="utf-8-sig")
     lines = text.splitlines()
 
-    assert lines == ["상대경로,크기,수정일", "도면/계약서.pdf,7,2026-01-02 03:04:05"]
+    assert lines == ["상대경로,크기,수정일,오류", "도면/계약서.pdf,7,2026-01-02 03:04:05,"]
 
 
 def test_save_csv_starts_with_bom(tmp_path):
     csv_path = tmp_path / "result.csv"
-    save_csv([], csv_path)
+    save_csv([], [], csv_path)
 
     data = csv_path.read_bytes()                # 글자로 바꾸지 않고 바이트 그대로 읽기
 
@@ -103,7 +103,7 @@ def test_save_csv_does_not_overwrite_existing_file(tmp_path):
     csv_path.write_text("original")
 
     with pytest.raises(FileExistsError):
-        save_csv([], csv_path)
+        save_csv([], [], csv_path)
 
     assert csv_path.read_text() == "original"
 
@@ -158,3 +158,17 @@ def test_print_report_hides_errors_when_none(capsys):
 
     out = capsys.readouterr().out
     assert out.splitlines() == ["도면/계약서.pdf\t7\t2026-01-02 03:04:05", "합계: 파일 1개, 7 바이트"]
+
+
+def test_save_csv_writes_error_rows(tmp_path):
+    records = [("도면/계약서.pdf", 7, datetime(2026, 1, 2, 3, 4, 5))]
+    errors = [("도면/설계서.pdf", "권한 없음")]
+    csv_path = tmp_path / "result.csv"
+
+    save_csv(records, errors, csv_path)
+
+    text = csv_path.read_text(encoding="utf-8-sig")
+    lines = text.splitlines()
+    
+    assert lines == ["상대경로,크기,수정일,오류", "도면/계약서.pdf,7,2026-01-02 03:04:05,", "도면/설계서.pdf,,,권한 없음"]
+    
